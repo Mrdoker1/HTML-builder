@@ -14,13 +14,13 @@ class FileWriter {
             stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
             stream.on('error', (err) => reject(err));
             stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-        })
+        });
     }
 
     async writeData() {
 
         try {
-            await fs.promises.access(this.filename)
+            await fs.promises.access(this.filename);
         } catch {
             this.createFile();
         }
@@ -37,12 +37,12 @@ class FileWriter {
                     readline.close();
                 }
 
-                fs.writeFile(this.filename, inputData, { flag: `${this.flag}` }, err => {});
+                fs.writeFile(this.filename, inputData, { flag: `${this.flag}` }, err => { console.log(err); });
             });
 
             readline.on('close', () => {
 
-                fs.writeFile(this.filename, data, { flag: `${this.flag}` }, err => {});
+                fs.writeFile(this.filename, data, { flag: `${this.flag}` }, err => { console.log(err); });
 
                 console.log('Process stopped');
                 process.exit();
