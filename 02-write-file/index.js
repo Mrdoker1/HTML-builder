@@ -37,12 +37,20 @@ class FileWriter {
                     readline.close();
                 }
 
-                fs.writeFile(this.filename, inputData, { flag: `${this.flag}` }, err => { console.log(err); });
+                fs.writeFile(this.filename, inputData, { flag: `${this.flag}` }, err => {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
             });
 
             readline.on('close', () => {
 
-                fs.writeFile(this.filename, data, { flag: `${this.flag}` }, err => { console.log(err); });
+                fs.writeFile(this.filename, data, { flag: `${this.flag}` }, err => {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
 
                 console.log('Process stopped');
                 process.exit();
