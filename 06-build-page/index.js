@@ -10,18 +10,23 @@ class Builder {
         this.dirAssets = __dirname + dirAssets + '/';
         this.dirOutput = __dirname + dirOutput + '/';
     }
-
     createBuild() {
-        this.buildHTML();
-        this.buildCSS();
-        this.copyAssets();
+        this.buildHTML().then(() => {
+            this.buildCSS().then(() => {
+                this.copyAssets();
+            });
+        });
     }
-
     async formHTML(files, fileAmount, templateData) {
+
+        let sectionNames = [];
 
         files.forEach((file, index) => {
 
             if (file.isFile() && path.extname(file.name) == '.html') {
+
+                sectionNames.push(` ${path.basename(file.name, path.extname(file.name))}`);
+
                 fs.readFile(this.dirComponents + file.name, 'utf8', (err, data) => {
                     if (err) {
                         console.error(err);
@@ -37,9 +42,14 @@ class Builder {
                             if (err) {
                                 console.log(err);
                             } else {
-                                fs.writeFile(this.dirOutput + 'index.html', templateData, { flag: `${'a'}` }, err => {});
+                                fs.writeFile(this.dirOutput + 'index.html', templateData, { flag: `${'a'}` }, err => {
+                                    if (err) {
+                                        console.log(err);
+                                    }
+                                });
                             }
                         });
+                        console.log('Sections used:' + sectionNames);
                         return templateData;
                     }
                 });
@@ -93,7 +103,11 @@ class Builder {
                                     if (err) {
                                         console.log(err);
                                     } else {
-                                        fs.writeFile(this.dirOutput + 'style.css', data, { flag: `${'a'}` }, err => {});
+                                        fs.writeFile(this.dirOutput + 'style.css', data, { flag: `${'a'}` }, err => {
+                                            if (err) {
+                                                console.log(err);
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -160,7 +174,28 @@ class Builder {
             console.error(err);
         }
     }
+    async removeBuild() {
+        try {
+            fs.access(this.dirOutput, (err) => {
+                if (err) {
+                    this.createBuild();
+                    console.log('Build was created!');
+                } else {
+                    fs.rm(this.dirOutput, { recursive: true }, (err) => {
+                        if (err) {
+                            throw err;
+                        } else {
+                            this.createBuild();
+                        }
+                    });
+                    console.log('Build was updated!');
+                }
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    }
 }
 
 let builder = new Builder('/components', '/template.html', '/styles', '/assets', '/project-dist');
-builder.createBuild();
+builder.removeBuild();
